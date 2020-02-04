@@ -12,7 +12,7 @@
  import ConwayMaxwellBinomial as cmb
  p = 0.4
  nu = 0.9
- m=100
+ m = 100
  com_distn = ConwayMaxwellBinomial(p, nu, m)
  ```
  To sample from the distribution run
