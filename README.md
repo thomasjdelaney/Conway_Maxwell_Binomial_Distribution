@@ -1,6 +1,11 @@
 # Conway Maxwell Binomial Distribution
  This package defines a class of Conway-Maxwell-Binomial distribution objects for Python 3. It also defines some useful functions for working with the objects.
 
+#### Requirements
+- Python3.6 or above
+- numpy
+- scipy
+
 ## Conway-Maxwell-Binomial distributions
  If you would like to learn more about this probability distribution, see this article: <https://en.wikipedia.org/wiki/Conway-Maxwell-binomial_distribution>
 
@@ -13,7 +18,7 @@
  p = 0.4
  nu = 0.9
  m = 100
- com_distn = ConwayMaxwellBinomial(p, nu, m)
+ com_distn = cmb.ConwayMaxwellBinomial(p, nu, m)
  ```
  To sample from the distribution run
  ```python

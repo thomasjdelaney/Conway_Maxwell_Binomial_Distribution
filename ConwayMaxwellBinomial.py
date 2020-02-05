@@ -5,6 +5,7 @@ import numpy as np
 from scipy.special import comb, logit
 from math import log
 from scipy.optimize import minimize
+from functools import reduce
 
 class ConwayMaxwellBinomial(object):
     def __init__(self, p, nu, m):
@@ -36,7 +37,7 @@ class ConwayMaxwellBinomial(object):
         elif self.p == 0:
             p_k = 1 if k == 0 else 0
         else:
-            p_k = np.exp((self.nu * log(comb(self.m, k))) + (k*log(self.p)) + ((self.m-k) * log(1-self.p)))/self.normaliser
+            p_k = self.getProbMassForCount(k)/self.normaliser
         return p_k
     
     def getSamplingDesignDict(self):
@@ -61,7 +62,16 @@ class ConwayMaxwellBinomial(object):
             warnings.warn("p = " + str(self.p) + " The distribution is deterministic.")
             return 0
         else:
-            return np.sum([np.exp((self.nu * log(comb(self.m, i))) + (i * log(self.p)) + ((self.m - i) * log(1-self.p))) for i in range(0, self.m + 1)])
+            return reduce(np.add, map(lambda x: self.getProbMassForCount(x), range(0, self.m + 1)))
+
+    def getProbMassForCount(self, k):
+        """
+        For calculating the unnormalised probability mass for an individual count.
+        Arguments:  self, the distribution object
+                    k, int, must be an integer in the interval [0, m]
+        Returns:    float, 
+        """
+        return np.exp((self.nu * log(comb(self.m, k))) + (k * log(self.p)) + ((self.m - k) * log(1-self.p)))
 
 def getLogFactorial(k):
     """
