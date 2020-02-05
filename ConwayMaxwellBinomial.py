@@ -79,7 +79,7 @@ def getLogFactorial(k):
     Arguments:  k, int
     Returns:    log(k!)
     """
-    return np.sum([log(i) for i in range(1, k+1)])
+    return reduce(np.add, map(log, range(1, k+1)))
 
 def getSecondHyperparam(m):
     """
@@ -97,7 +97,7 @@ def calculateSecondSufficientStat(samples,m):
     Returns:    \sum_{i=1}^n k_i! (m - k_i)! where k_i is a sample
     """
     samples = np.array([samples]) if np.isscalar(samples) else samples
-    return np.sum([getLogFactorial(sample) + getLogFactorial(m - sample) for sample in samples])
+    return reduce(np.add, map(lambda x: getLogFactorial(x) + getLogFactorial(m - x), samples))
 
 def calcUpperBound(a,c,m):
     """
