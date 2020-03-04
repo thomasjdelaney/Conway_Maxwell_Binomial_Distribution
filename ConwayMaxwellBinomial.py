@@ -30,7 +30,7 @@ class ConwayMaxwellBinomial(object):
                     k, int, must be an integer in the interval [0, m]
         Returns:    P(k)
         """
-        if (k > self.m) | (k != int(k)):
+        if (k > self.m) | (k != int(k)) | (k < 0):
             raise ValueError("k must be an integer between 0 and m, inclusive")
         if self.p == 1:
             p_k = 1 if k == self.m else 0
@@ -39,6 +39,29 @@ class ConwayMaxwellBinomial(object):
         else:
             p_k = self.getProbMassForCount(k)/self.normaliser
         return p_k
+    
+    def cdf(self, k):
+        """
+        For getting the cumulative distribution function of the distribution at k.
+        Arguments:  self, the distribution object
+                    k, int, must be an integer in the interval [0,m]
+        Returns:    float
+
+        NB: this function relies on the sampling design dictionary keys being sorted!
+        """
+        accumulated_density = 0
+        if (k > self.m) | (k != int(k)) | (k < 0):
+            raise ValueError("k must be an integer between 0 and m, inclusive")
+        elif k == 0:
+            return self.samp_des_dict[0]
+        elif k == self.m:
+            return 1.0
+        else:
+            for dk,dv in self.samp_des_dict.items():
+                if dk <= k:
+                    accumulated_density += dv
+                else:
+                    return accumulated_density # avoids looping through all the keys unnecessarily.
     
     def getSamplingDesignDict(self):
         """
