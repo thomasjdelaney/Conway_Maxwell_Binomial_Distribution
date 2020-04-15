@@ -23,7 +23,7 @@ class ConwayMaxwellBinomial(object):
         self.normaliser = self.getNormaliser()
         self.samp_des_dict = self.getSamplingDesignDict()
 
-    def pmf(self, k):
+    def pmf_atomic(self, k):
         """
         Probability mass function. Uses exponents and logs to avoid overflow.
         Arguments:  self, ConwayMaxwellBinomial object,
@@ -40,6 +40,18 @@ class ConwayMaxwellBinomial(object):
             p_k = self.getProbMassForCount(k)/self.normaliser
         return p_k
 
+    def pmf(self, k):
+        """
+        Probability mass function that can take lists or atomics.
+        Arguments:  self, ConwayMaxwellBinomial object,
+                    k, int, or list of ints
+        Returns:    P(k)
+        """
+        if np.isscalar(k):
+            return self.pmf_atomic(k)
+        else:
+            return np.array(list(map(self.pmf_atomic, k)))
+
     def logpmf(self, k):
         """
         Log probability mass function. Does what it says on the tin. 
@@ -50,7 +62,7 @@ class ConwayMaxwellBinomial(object):
         """
         return np.log(self.pmf(k))
 
-    def cdf(self, k):
+    def cdf_atomic(self, k):
         """
         For getting the cumulative distribution function of the distribution at k.
         Arguments:  self, the distribution object
@@ -73,13 +85,26 @@ class ConwayMaxwellBinomial(object):
                 else:
                     return accumulated_density # avoids looping through all the keys unnecessarily.
     
+    def cdf(self, k):
+        """
+        For getting the cumulative distribution function at k, or a list of k.
+        Arguments:  self, the distribution object
+                    k, int, must be an integer in the interval [0,m]
+        Returns:    float or array of floats
+        """
+        if np.isscalar(k):
+            return self.cdf_atomic(k)
+        else:
+            return np.array(list(map(self.cdf_atomic, k)))
+
     def getSamplingDesignDict(self):
         """
         Returns a dictionary representing the sampling design of the distribution. That is, samp_des_dict[k] = pmf(k)
         Arguments:  self, the distribution object,
         Returns:    samp_des_dict, dictionary, int => float
         """
-        samp_des_dict = {k:self.pmf(k)for k in range(0,self.m + 1)}
+        possible_values = range(0,self.m+1)
+        samp_des_dict = dict(zip(possible_values, self.pmf(possible_values)))
         return samp_des_dict
 
     def rvs(self, size=1):
@@ -112,7 +137,7 @@ def getLogFactorial(k):
     Arguments:  k, int
     Returns:    log(k!)
     """
-    return 0.0 if k == 0 else reduce(np.add, map(log, range(1, k+1)))
+    return np.log(range(1,k+1)).sum() if k else 0.0
 
 def getSecondHyperparam(m):
     """
