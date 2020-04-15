@@ -39,7 +39,17 @@ class ConwayMaxwellBinomial(object):
         else:
             p_k = self.getProbMassForCount(k)/self.normaliser
         return p_k
-    
+
+    def logpmf(self, k):
+        """
+        Log probability mass function. Does what it says on the tin. 
+        Improvement might be possible, later.
+        Arguments:  self, ConwayMaxwellBinomial object,
+                    k, int, must be an integer in the interval [0,m]
+        Returns:    log P(k)
+        """
+        return np.log(self.pmf(k))
+
     def cdf(self, k):
         """
         For getting the cumulative distribution function of the distribution at k.
@@ -102,7 +112,7 @@ def getLogFactorial(k):
     Arguments:  k, int
     Returns:    log(k!)
     """
-    return reduce(np.add, map(log, range(1, k+1)))
+    return 0.0 if k == 0 else reduce(np.add, map(log, range(1, k+1)))
 
 def getSecondHyperparam(m):
     """
