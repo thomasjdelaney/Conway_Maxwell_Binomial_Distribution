@@ -155,7 +155,7 @@ def calculateSecondSufficientStat(samples,m):
     Returns:    \sum_{i=1}^n k_i! (m - k_i)! where k_i is a sample
     """
     samples = np.array([samples]) if np.isscalar(samples) else samples
-    return reduce(np.add, map(lambda x: getLogFactorial(x) + getLogFactorial(m - x), samples))
+    return np.sum([getLogFactorial(k) + getLogFactorial(m - k) for k in samples])
 
 def calcUpperBound(a,c,m):
     """
