@@ -21,7 +21,8 @@ class ConwayMaxwellBinomial(object):
         self.nu = nu
         self.m = m
         self.normaliser = self.getNormaliser()
-        self.samp_des_dict = self.getSamplingDesignDict()
+        self.has_samp_des_dict = False
+        self.samp_des_dict, self.has_samp_des_dict = self.getSamplingDesignDict()
 
     def pmf_atomic(self, k):
         """
@@ -36,6 +37,8 @@ class ConwayMaxwellBinomial(object):
             p_k = 1 if k == self.m else 0
         elif self.p == 0:
             p_k = 1 if k == 0 else 0
+        elif self.has_samp_des_dict:
+            p_k = self.samp_des_dict.get(k)
         else:
             p_k = self.getProbMassForCount(k)/self.normaliser
         return p_k
@@ -50,7 +53,7 @@ class ConwayMaxwellBinomial(object):
         if np.isscalar(k):
             return self.pmf_atomic(k)
         else:
-            return np.array(list(map(self.pmf_atomic, k)))
+            return np.array([self.pmf_atomic(k_i) for k_i in k])
 
     def logpmf(self, k):
         """
@@ -95,17 +98,19 @@ class ConwayMaxwellBinomial(object):
         if np.isscalar(k):
             return self.cdf_atomic(k)
         else:
-            return np.array(list(map(self.cdf_atomic, k)))
+            return np.array([self.cdf_atomic(k_i) for k_i in k])
 
     def getSamplingDesignDict(self):
         """
         Returns a dictionary representing the sampling design of the distribution. That is, samp_des_dict[k] = pmf(k)
         Arguments:  self, the distribution object,
         Returns:    samp_des_dict, dictionary, int => float
+                    has_samp_des_dict, True
         """
         possible_values = range(0,self.m+1)
         samp_des_dict = dict(zip(possible_values, self.pmf(possible_values)))
-        return samp_des_dict
+        has_samp_des_dict = True
+        return samp_des_dict, has_samp_des_dict
 
     def rvs(self, size=1):
         return np.random.choice(range(0,self.m + 1), size=size, replace=True, p=list(self.samp_des_dict.values()))
@@ -120,7 +125,7 @@ class ConwayMaxwellBinomial(object):
             warnings.warn("p = " + str(self.p) + " The distribution is deterministic.")
             return 0
         else:
-            return reduce(np.add, map(lambda x: self.getProbMassForCount(x), range(0, self.m + 1)))
+            return np.sum([self.getProbMassForCount(k) for k in range(0, self.m + 1)])
 
     def getProbMassForCount(self, k):
         """
@@ -245,9 +250,9 @@ def conwayMaxwellNegLogLike(params, m, samples):
     n = samples.size
     com_dist = ConwayMaxwellBinomial(p, nu, m)
     p_part = np.log(p/(1-p))*samples.sum()
-    nu_part = nu * calculateSecondSufficientStat(samples,m)
-    partition_part = np.log(com_dist.normaliser) - (nu * getLogFactorial(m)) - (m * np.log(1-p))
-    return -(p_part - nu_part - n * partition_part)
+    nu_part = nu * np.log(comb(m,samples)).sum()
+    partition_part = np.log(com_dist.normaliser) - (m * np.log(1-p))
+    return n*partition_part - p_part - nu_part
 
 def estimateParams(m, samples, init):
     """
@@ -256,7 +261,7 @@ def estimateParams(m, samples, init):
                 samples, ints, between 0 and m
     Return:     the fitted params, p and nu
     """
-    bnds = ((0.000001,0.99999999),(-2,2))
+    bnds = ((np.finfo(float).resolution, 1 - np.finfo(float).resolution),(None,None))
     res = minimize(conwayMaxwellNegLogLike, init, args=(m,samples), bounds=bnds)
     return res.x
 
