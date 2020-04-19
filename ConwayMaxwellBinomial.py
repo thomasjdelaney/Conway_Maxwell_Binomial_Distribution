@@ -3,9 +3,7 @@ For the class of ConwayMaxwellBinomial distribution object and all useful functi
 """
 import numpy as np
 from scipy.special import comb, logit
-from math import log
 from scipy.optimize import minimize
-from functools import reduce
 
 class ConwayMaxwellBinomial(object):
     def __init__(self, p, nu, m):
@@ -134,7 +132,7 @@ class ConwayMaxwellBinomial(object):
                     k, int, must be an integer in the interval [0, m]
         Returns:    float, 
         """
-        return np.exp((self.nu * log(comb(self.m, k))) + (k * log(self.p)) + ((self.m - k) * log(1-self.p)))
+        return np.exp((self.nu * np.log(comb(self.m, k))) + (k * np.log(self.p)) + ((self.m - k) * np.log(1-self.p)))
 
 def getLogFactorial(k):
     """
