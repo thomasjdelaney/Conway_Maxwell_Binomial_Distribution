@@ -259,7 +259,7 @@ def estimateParams(m, samples, init):
                 samples, ints, between 0 and m
     Return:     the fitted params, p and nu
     """
-    bnds = (1e-8, 1 - 1e-8,(None,None))
+    bnds = ((1e-8, 1-1e-8), (None,None))
     res = minimize(conwayMaxwellNegLogLike, init, args=(m,samples), bounds=bnds)
     return res.x
 
