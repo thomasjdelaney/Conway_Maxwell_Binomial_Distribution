@@ -252,7 +252,7 @@ def conwayMaxwellNegLogLike(params, m, samples):
     partition_part = np.log(com_dist.normaliser) - (m * np.log(1-p))
     return n*partition_part - p_part - nu_part
 
-def estimateParams(m, samples, init):
+def estimateParams(m, samples, init=[None, None]):
     """
     For estimating the parameters of the Conway-Maxwell binomial distribution from the given samples.
     Arguments:  m, the number of bernoulli variables being used.
@@ -260,6 +260,9 @@ def estimateParams(m, samples, init):
     Return:     the fitted params, p and nu
     """
     bnds = ((1e-8, 1-1e-8), (None,None))
+    if init == [None, None]:
+        sample_mean = samples.mean()/m
+        init = [sample_mean, 1.0] if sample_mean > 1e-8  else [0.5,1.0]
     res = minimize(conwayMaxwellNegLogLike, init, args=(m,samples), bounds=bnds)
     return res.x
 
