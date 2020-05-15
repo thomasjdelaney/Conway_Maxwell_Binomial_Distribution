@@ -2,6 +2,7 @@
 For the class of ConwayMaxwellBinomial distribution object and all useful functions relating to it.
 """
 import numpy as np
+import warnings
 from scipy.special import comb, logit
 from scipy.optimize import minimize
 
